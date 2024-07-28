@@ -112,3 +112,32 @@ resource "aws_dynamodb_table_item" "event_prod" {
 }
 ITEM
 }
+
+# Create a more specific IAM policy for DynamoDB access
+resource "aws_iam_policy" "dynamodb_access_policy" {
+  name        = "DynamoDBAccessPolicy"
+  description = "Policy to allow GetItem and PutItem on DynamoDB table"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem"
+        ],
+        "Resource" : "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.table_name}"
+      }
+    ]
+  })
+}
+
+#Attaching AdministratorAccess policy 
+resource "aws_iam_user_policy_attachment" "dynamodb_user_policyattachment" {
+  user       = aws_iam_user.terraform_user_name.id
+  policy_arn = aws_iam_policy.dynamodb_access_policy.arn
+}
+
+
+# Data source to get current account ID
+data "aws_caller_identity" "current" {}
