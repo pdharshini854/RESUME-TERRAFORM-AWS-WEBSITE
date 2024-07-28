@@ -67,13 +67,48 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 resource "aws_dynamodb_table" "resume_statelock_table" {
   name         = var.table_name
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
+  hash_key     = "event"
+
   attribute {
-    name = "LockID"
+    name = "event"
     type = "S"
   }
+
   tags = {
-    name = "resume-challenge"
+    purpose     = "cloudresumechallenge"
+    Environment = "production"
+  }
+}
+
+
+resource "aws_dynamodb_table_item" "event_test" {
+  table_name = aws_dynamodb_table.resume_statelock_table.name
+  hash_key   = aws_dynamodb_table.resume_statelock_table.hash_key
+
+  lifecycle {
+    ignore_changes = all
   }
 
+  item = <<ITEM
+{
+  "event": {"S": "test"},
+  "visits":{"N":"0"}
+}
+ITEM
+}
+
+resource "aws_dynamodb_table_item" "event_prod" {
+  table_name = aws_dynamodb_table.resume_statelock_table.name
+  hash_key   = aws_dynamodb_table.resume_statelock_table.hash_key
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  item = <<ITEM
+{
+  "event": {"S": "prod"},
+  "visits":{"N":"0"}
+}
+ITEM
 }
