@@ -13,13 +13,13 @@ resource "aws_iam_user_policy_attachment" "terraform_user_policyattachment" {
 }
 
 
-#Creating S3 Bucket
+#Creating S3 Bucket`1
 resource "aws_s3_bucket" "resume_bucket" {
   bucket = var.bucket_name
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
   tags = {
     name = "resume-challenge"
   }
