@@ -64,7 +64,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 }
 
 #Creating DynamoDB table
-resource "aws_dynamodb_table" "resume_statelock_table" {
+resource "aws_dynamodb_table" "resume_lock_table" {
   name         = var.table_name
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
