@@ -14,7 +14,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
 
   origin {
     domain_name              = var.bucket_regional_domain_name
-    origin_id                = "s3-${var.s3_bucket.id}"
+    origin_id                = "s3-${var.s3_bucket_id}"
     origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_s3_oac.id
   }
 
@@ -23,7 +23,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
     cached_methods  = ["GET", "HEAD"]
     # Using AWS Managed-CachingOptimized cache policy
     cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-    target_origin_id       = "s3-${var.s3_bucket.id}"
+    target_origin_id       = "s3-${var.s3_bucket_id}"
     viewer_protocol_policy = "redirect-to-https"
   }
 
