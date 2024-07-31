@@ -13,3 +13,19 @@ output "route53_zone_id" {
 output "website_url" {
   value = "http://${aws_s3_bucket.website_bucket.bucket}.s3-website-${var.region}.amazonaws.com"
 }
+
+output "root_domain" {
+  value = var.root_domain
+}
+
+output "bucket_regional_domain_name" {
+  value = aws_s3_bucket.website_bucket.bucket_regional_domain_name
+}
+
+output "s3_bucket_id" {
+  value = aws_s3_bucket.website_bucket.id
+}
+
+output "coudfront_distribution_id" {
+  value = aws_cloudfront_distribution.website_distribution.id
+}
