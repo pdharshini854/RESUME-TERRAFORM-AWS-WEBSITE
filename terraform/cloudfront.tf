@@ -13,8 +13,8 @@ resource "aws_cloudfront_distribution" "website_distribution" {
   aliases             = [var.root_domain]
 
   origin {
-    domain_name              = var.bucket_regional_domain_name
-    origin_id                = "s3-${var.s3_bucket_id}"
+    domain_name              = aws_s3_bucket.website_bucket.bucket_regional_domain_name
+    origin_id                = "s3-${aws_s3_bucket.website_bucket.id}"
     origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_s3_oac.id
   }
 
@@ -23,7 +23,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
     cached_methods  = ["GET", "HEAD"]
     # Using AWS Managed-CachingOptimized cache policy
     cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-    target_origin_id       = "s3-${var.s3_bucket_id}"
+    target_origin_id       = "s3-${aws_s3_bucket.website_bucket.id}"
     viewer_protocol_policy = "redirect-to-https"
   }
 
@@ -34,14 +34,14 @@ resource "aws_cloudfront_distribution" "website_distribution" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = var.ssl_cert_arn
+    acm_certificate_arn      = aws_acm_certificate.ssl_certificate.arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
 }
 
 resource "aws_s3_bucket_policy" "cloudfront_s3_policy" {
-  bucket = var.s3_bucket_id
+  bucket = var.website_bucket
 
   policy = jsonencode({
     Version = "2008-10-17"
@@ -54,7 +54,7 @@ resource "aws_s3_bucket_policy" "cloudfront_s3_policy" {
           Service = "cloudfront.amazonaws.com"
         }
         Action   = "s3:GetObject"
-        Resource = "arn:aws:s3:::${var.s3_bucket_id}/*"
+        Resource = "${aws_s3_bucket.website_bucket.arn}/*",
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = aws_cloudfront_distribution.website_distribution.arn
@@ -66,7 +66,7 @@ resource "aws_s3_bucket_policy" "cloudfront_s3_policy" {
 }
 
 resource "aws_route53_record" "website_alias_record" {
-  zone_id = var.route53_zone_id
+  zone_id = data.aws_route53_zone.dns_zone.zone_id
   name    = var.root_domain
   type    = "A"
 
